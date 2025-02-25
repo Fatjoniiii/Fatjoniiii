@@ -1,0 +1,140 @@
+#include <iostream>
+#include <vector>
+#include <string>
+#include <algorithm>
+
+using namespace std; 
+
+class Student {
+public:
+    Student(int id, const string& name, int age)
+        : id(id), name(name), age(age) {}
+
+    int getId() const { return id; }
+    string getName() const { return name; }
+    int getAge() const { return age; }
+
+    void setName(const string& newName) { name = newName; }
+    void setAge(int newAge) { age = newAge; }
+
+    void display() const {
+        cout << "ID: " << id << " | Emri: " << name << " | Mosha: " << age << endl;
+    }
+
+private:
+    int id;
+    string name;
+    int age;
+};
+
+class StudentManager {
+public:
+    void addStudent(int id, const string& name, int age) {
+        if (findStudent(id) != nullptr) {
+            cout << " Student me ID " << id << " tashmë ekziston!\n";
+            return;
+        }
+        students.emplace_back(id, name, age);
+        cout << " Studenti u shtua me sukses!\n";
+    }
+
+    void removeStudent(int id) {
+        auto it = remove_if(students.begin(), students.end(),
+            [id](const Student& s) { return s.getId() == id; });
+
+        if (it != students.end()) {
+            students.erase(it, students.end());
+            cout << " Studenti me ID " << id << " u fshi me sukses!\n";
+        }
+        else {
+            cout << " Nuk u gjet student me ID " << id << "!\n";
+        }
+    }
+
+    void displayStudents() const {
+        if (students.empty()) {
+            cout << " Nuk ka asnjë student të regjistruar!\n";
+            return;
+        }
+
+        cout << "\n Lista e studentëve:\n";
+        for (const auto& student : students) {
+            student.display();
+        }
+        cout << endl;
+    }
+
+private:
+    vector<Student> students;
+
+    Student* findStudent(int id) {
+        for (auto& student : students) {
+            if (student.getId() == id) {
+                return &student;
+            }
+        }
+        return nullptr;
+    }
+};
+
+void showMenu() {
+    cout << "\n----------------------\n";
+    cout << " Menaxhimi i Studentëve\n";
+    cout << "1  Shto student\n";
+    cout << "2  Fshij student\n";
+    cout << "3 Shfaq studentët\n";
+    cout << "4  Dil\n";
+    cout << "Zgjedhni një opsion: ";
+}
+
+int main() {
+    StudentManager manager;
+    int choice;
+
+    do {
+        showMenu();
+        cin >> choice;
+
+        if (cin.fail()) { // Kontrollo input të pavlefshëm
+            cin.clear();
+            cin.ignore(1000, '\n');
+            cout << " Ju lutem shkruani një numër valid!\n";
+            continue;
+        }
+
+        if (choice == 1) {
+            int id, age;
+            string name;
+
+            cout << " Shkruaj ID-n e studentit: ";
+            cin >> id;
+
+            cin.ignore(); // Pastro buffer-in për të marrë input tekstual
+            cout << " Shkruaj emrin e studentit: ";
+            getline(cin, name);
+
+            cout << " Shkruaj moshën e studentit: ";
+            cin >> age;
+
+            manager.addStudent(id, name, age);
+        }
+        else if (choice == 2) {
+            int id;
+            cout << " Shkruaj ID-n e studentit për të fshirë: ";
+            cin >> id;
+            manager.removeStudent(id);
+        }
+        else if (choice == 3) {
+            manager.displayStudents();
+        }
+        else if (choice == 4) {
+            cout << " Po dilni nga programi... Mirupafshim!\n";
+        }
+        else {
+            cout << " Opsion i pavlefshëm! Provo përsëri.\n";
+        }
+
+    } while (choice != 4);
+
+    return 0;
+}
